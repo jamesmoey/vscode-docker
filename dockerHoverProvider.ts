@@ -5,16 +5,17 @@
 'use strict';
 
 import { Range, TextDocument, Position, CancellationToken, HoverProvider, Hover, MarkedString } from 'vscode';
+import { KeyInfo } from "./dockerExtension";
 import parser = require('./parser');
 import hub = require('./dockerHubApi');
 import suggestHelper = require('./helpers/suggestSupportHelper');
 
 export class DockerHoverProvider implements HoverProvider {
     _parser: parser.Parser;
-    _keyInfo: { [keyName: string]: string; };
+    _keyInfo: KeyInfo;
 
     // Provide the parser you want to use as well as keyinfo dictionary.
-    constructor(wordParser: parser.Parser, keyInfo: { [keyName: string]: string; }) {
+    constructor(wordParser: parser.Parser, keyInfo: KeyInfo) {
         this._parser = wordParser;
         this._keyInfo = keyInfo;
     }
@@ -48,10 +49,10 @@ export class DockerHoverProvider implements HoverProvider {
             }
 
             let range = new Range(position.line, r[0].startIndex, position.line, r[0].endIndex);
-            r[0].result.then((t) => {
-                let hover = new Hover(t, range);
-                return hover;
-            })
+
+            let hover = new Hover(r[0].result, range);
+
+            return hover;
 
         });
     }
